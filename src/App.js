@@ -1,25 +1,77 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState } from "react";
+import "./App.css";
+import update_person from "./store/actions/personActions";
+import { connect } from "react-redux";
+import { UPDATE_GAME } from "./store/actions/gameActions";
+import userActions, { fetch_users } from "./store/actions/usersActions";
 
-function App() {
+function App(props) {
+  console.log(props);
+  const [name, setName] = useState("");
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <>
+      <div className="App">
+        <header className="App-header">
+          <h1>Redux Tutorial</h1>
+        </header>
+      </div>
+      <div>person name: {props.person.name}</div>
+      <div>game : {props.game.name}</div>
+      <div>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            props.updatePerson(name);
+          }}
         >
-          Learn React
-        </a>
-      </header>
-    </div>
+          <label htmlFor="person_name">Person Name</label>
+          <input
+            type="text"
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <input type="submit" value="Change Name" />
+        </form>
+      </div>
+
+      <div>
+        Users: <button onClick={props.fetchUsers}>Fetch users</button>
+      </div>
+      <div>
+        {props.users.map((user) => {
+          return (
+            <p key={user.id}>
+              {user.first_name + "->" + user.email} <br />
+              <img src={user.avatar} alt="" />
+            </p>
+          );
+        })}
+      </div>
+    </>
   );
 }
 
-export default App;
+const mapStateToProps = (state) => {
+  return {
+    person: state.person,
+    game: state.game,
+    users: state.users,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    updatePerson: (value) => {
+      dispatch({ type: update_person.UPDATE_NAME, payload: value });
+    },
+    updateGame: (value) => {
+      dispatch({ type: UPDATE_GAME, payload: value });
+    },
+    fetchUsers: () => {
+      fetch_users(dispatch);
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
